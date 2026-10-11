@@ -51,3 +51,8 @@ export type TFeedState = {
   isLoading: boolean;
   error: unknown;
 };
+
+export type ProtectedRouteProps = {
+  children: React.ReactElement;
+  onlyUnAuth?: boolean;
+}
