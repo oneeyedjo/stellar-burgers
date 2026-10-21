@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
+import { Routes, Route, useLocation, type Location } from 'react-router-dom';
 
 import { AppHeader } from '@components';
 import { ModalOrderInfo } from '../app/modal-order-info';
 import { ModalIngredient } from '../app/modal-ingredient';
-
 import {
   ConstructorPage,
   Feed,
@@ -16,7 +16,6 @@ import {
   NotFound404
 } from '@pages';
 import { Preloader } from '@ui';
-import { Routes, Route } from 'react-router-dom';
 
 import { useDispatch, useSelector } from '@services/store';
 import {
@@ -27,13 +26,16 @@ import {
 import { getIngredients } from '../../services/ingredientsSlice';
 import { checkUserAuth } from '../../services/userSlice';
 import { ProtectedRoute } from '@components/protected-route/protected-route';
+import { IngredientDetails } from '../ingredient-details/ingredient-details';
+import { OrderInfo } from '../order-info/order-info';
 
 import '../../index.css';
-
 import styles from './app.module.css';
 
 const App = (): React.JSX.Element => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const background = location.state?.background;
 
   useEffect(() => {
     dispatch(getIngredients());
@@ -43,14 +45,14 @@ const App = (): React.JSX.Element => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <AppContent />
+      <AppContent background={background} />
     </div>
   );
 };
 
 export default App;
 
-const AppContent = (): React.JSX.Element => {
+const AppContent = ({ background }: { background?: Location }): React.JSX.Element => {
   const ingredients = useSelector(ingredientsSelector);
   const isLoading = useSelector(ingredientsLoadingSelector);
   const error = useSelector(ingredientsErrorSelector);
@@ -75,77 +77,40 @@ const AppContent = (): React.JSX.Element => {
     );
   }
 
-  return <RouteComponent />;
+  return <RouteComponent background={background} />;
 };
 
-const RouteComponent = (): React.JSX.Element => {
+const RouteComponent = ({ background }: { background?: Location }): React.JSX.Element => {
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route path='/' element={<ConstructorPage />} />
-      <Route path='/feed' element={<Feed />} />
+    <>
+      <Routes location={background || location}>
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='/feed' element={<Feed />} />
 
-      <Route
-        path='/login'
-        element={
-          <ProtectedRoute onlyUnAuth>
-            <Login />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/register'
-        element={
-          <ProtectedRoute onlyUnAuth>
-            <Register />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/forgot-password'
-        element={
-          <ProtectedRoute onlyUnAuth>
-            <ForgotPassword />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/reset-password'
-        element={
-          <ProtectedRoute onlyUnAuth>
-            <ResetPassword />
-          </ProtectedRoute>
-        }
-      />
+        <Route path='/login' element={<ProtectedRoute onlyUnAuth><Login /></ProtectedRoute>} />
+        <Route path='/register' element={<ProtectedRoute onlyUnAuth><Register /></ProtectedRoute>} />
+        <Route path='/forgot-password' element={<ProtectedRoute onlyUnAuth><ForgotPassword /></ProtectedRoute>} />
+        <Route path='/reset-password' element={<ProtectedRoute onlyUnAuth><ResetPassword /></ProtectedRoute>} />
 
-      <Route
-        path='/profile'
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/profile/orders'
-        element={
-          <ProtectedRoute>
-            <ProfileOrders />
-          </ProtectedRoute>
-        }
-      />
+        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path='/profile/orders' element={<ProtectedRoute><ProfileOrders /></ProtectedRoute>} />
 
-      <Route path='/feed/:number' element={<ModalOrderInfo />} />
-      <Route path='/ingredients/:id' element={<ModalIngredient />} />
-      <Route
-        path='/profile/orders/:number'
-        element={
-          <ProtectedRoute>
-            <ModalOrderInfo />
-          </ProtectedRoute>
-        }
-      />
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/feed/:number' element={<OrderInfo />} />
+        <Route path='/profile/orders/:number' element={<ProtectedRoute><OrderInfo /></ProtectedRoute>} />
 
-      <Route path='*' element={<NotFound404 />} />
-    </Routes>
+        <Route path='*' element={<NotFound404 />} />
+      </Routes>
+
+      {background && (
+        <Routes>
+          <Route path='/ingredients/:id' element={<ModalIngredient />} />
+          <Route path='/feed/:number' element={<ModalOrderInfo />} />
+          <Route path='/profile/orders/:number' element={<ProtectedRoute><ModalOrderInfo /></ProtectedRoute>} />
+        </Routes>
+      )}
+    </>
   );
 };

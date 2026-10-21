@@ -1,8 +1,15 @@
 import { AppHeaderUI } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import { userDataSelector } from '../../services/selectors';
+import { logoutUser } from '../../services/userSlice';
 
 export const AppHeader = (): React.JSX.Element => {
-  /* TODO: Получите имя пользователя из хранилища */
-  const userName = undefined;
+  const user = useSelector(userDataSelector);
+  const dispatch = useDispatch();
 
-  return <AppHeaderUI userName={userName} />;
+  const handleLogout = (): void => {
+    dispatch(logoutUser());
+  };
+
+  return <AppHeaderUI userName={user?.name} onLogout={handleLogout} />;
 };

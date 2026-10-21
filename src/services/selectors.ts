@@ -4,8 +4,7 @@ import type { RootState } from './store';
 export const isAuthCheckedSelector = (state: RootState): boolean =>
   state.user.isAuthChecked;
 
-export const userDataSelector = (state: RootState) =>
-  state.user.user;
+export const userDataSelector = (state: RootState) => state.user.user;
 
 export const userLoadingSelector = (state: RootState): boolean =>
   state.user.isLoading;
@@ -22,3 +21,35 @@ export const ingredientsLoadingSelector = (state: RootState): boolean =>
 
 export const ingredientsErrorSelector = (state: RootState): string | null =>
   state.ingredients.error;
+
+// --- Orders ---
+export const feedSelector = (state: RootState) => state.orders.feed;
+
+export const feedTotalSelector = (state: RootState): number =>
+  state.orders.total;
+
+export const feedTotalTodaySelector = (state: RootState): number =>
+  state.orders.totalToday;
+
+export const userOrdersSelector = (state: RootState) =>
+  state.orders.userOrders;
+
+export const ordersLoadingSelector = (state: RootState): boolean =>
+  state.orders.isLoading;
+
+export const ordersErrorSelector = (state: RootState): string | null =>
+  state.orders.error;
+
+// --- Constructor ---
+export const constructorBunSelector = (state: RootState) =>
+  state.constructor.bun;
+
+export const constructorIngredientsSelector = (state: RootState) =>
+  state.constructor.ingredients;
+
+// --- Order ---
+export const orderRequestSelector = (state: RootState): boolean =>
+  state.order.orderRequest;
+
+export const orderModalDataSelector = (state: RootState) =>
+  state.order.orderModalData;

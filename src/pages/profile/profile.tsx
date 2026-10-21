@@ -1,24 +1,25 @@
 import { ProfileUI } from '@ui-pages';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 
+import { useDispatch, useSelector } from '../../services/store';
+import { userDataSelector } from '../../services/selectors';
+import { updateUser } from '../../services/userSlice';
+
 export const Profile = (): React.JSX.Element => {
-  /** TODO: Взять переменную из стора */
-  const user = {
-    name: '',
-    email: '',
-  };
+  const user = useSelector(userDataSelector);
+  const dispatch = useDispatch();
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
-    password: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    password: ''
   });
 
   useEffect(() => {
     setFormValue((prevState) => ({
       ...prevState,
       name: user?.name || '',
-      email: user?.email || '',
+      email: user?.email || ''
     }));
   }, [user]);
 
@@ -29,21 +30,34 @@ export const Profile = (): React.JSX.Element => {
 
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
+
+    const payload: { name?: string; email?: string; password?: string } = {};
+    if (formValue.name !== user?.name) payload.name = formValue.name;
+    if (formValue.email !== user?.email) payload.email = formValue.email;
+    if (formValue.password) payload.password = formValue.password;
+
+    dispatch(updateUser(payload))
+      .unwrap()
+      .then(() => {
+        setFormValue((prev) => ({ ...prev, password: '' }));
+      })
+      .catch(() => {
+      });
   };
 
   const handleCancel = (e: SyntheticEvent): void => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
-      password: '',
+      name: user?.name || '',
+      email: user?.email || '',
+      password: ''
     });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormValue((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     }));
   };
 
