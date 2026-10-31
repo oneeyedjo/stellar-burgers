@@ -1,15 +1,15 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
-import { constructorReducer } from '../services/constructorSlice'
-import { ingredientsReducer } from '../services/ingredientsSlice';
-import { ordersReducer } from './ordersSlice';
+import { constructorReducer } from './constructorSlice';
+import { ingredientsReducer } from './ingredientsSlice';
 import { orderReducer } from './orderSlice';
-import { userReducer } from '../services/userSlice';
+import { ordersReducer } from './ordersSlice';
+import { userReducer } from './userSlice';
 
 export const rootReducer = combineReducers({
   ingredients: ingredientsReducer,
   user: userReducer,
   orders: ordersReducer,
-  constructor: constructorReducer,
+  burgerConstructor: constructorReducer,
   order: orderReducer
 });

@@ -19,8 +19,16 @@ export const ProfileOrders = (): React.JSX.Element => {
     dispatch(getOrders());
   }, [dispatch]);
 
-  if (isLoading || !orders.length) {
+  if (isLoading) {
     return <Preloader />;
+  }
+
+  if (!orders.length) {
+    return (
+      <p className="text text_type_main-medium mt-10">
+        У вас пока нет заказов
+      </p>
+    );
   }
 
   return <ProfileOrdersUI orders={orders} />;

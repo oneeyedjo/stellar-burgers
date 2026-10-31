@@ -42,10 +42,10 @@ export const ordersErrorSelector = (state: RootState): string | null =>
 
 // --- Constructor ---
 export const constructorBunSelector = (state: RootState) =>
-  state.constructor.bun;
+  state.burgerConstructor.bun;
 
 export const constructorIngredientsSelector = (state: RootState) =>
-  state.constructor.ingredients;
+  state.burgerConstructor.ingredients;
 
 // --- Order ---
 export const orderRequestSelector = (state: RootState): boolean =>

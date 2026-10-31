@@ -1,24 +1,55 @@
 import { BurgerConstructorUI } from '@ui';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import type { TConstructorIngredient, TConstructorState, TOrder } from '@utils-types';
+import { useDispatch, useSelector } from '../../services/store';
+import {
+  constructorBunSelector,
+  constructorIngredientsSelector,
+  orderRequestSelector,
+  orderModalDataSelector,
+  userDataSelector
+} from '../../services/selectors';
+import { clearConstructor } from '../../services/constructorSlice';
+import { createOrder, clearOrderModalData } from '../../services/orderSlice';
+
+import type { TConstructorIngredient, TConstructorState } from '@utils-types';
 
 export const BurgerConstructor = (): React.JSX.Element | null => {
-  /** TODO: Взять переменные constructorItems, orderRequest и orderModalData из стора */
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const bun = useSelector(constructorBunSelector);
+  const ingredients = useSelector(constructorIngredientsSelector);
+  const orderRequest = useSelector(orderRequestSelector);
+  const orderModalData = useSelector(orderModalDataSelector);
+  const user = useSelector(userDataSelector);
+
   const constructorItems: TConstructorState = {
-    bun: null,
-    ingredients: [],
+    bun,
+    ingredients,
   };
-  const orderRequest = false;
-  const orderModalData: TOrder | null = null;
 
   const onOrderClick = (): void => {
     if (!constructorItems.bun || orderRequest) return;
-    // TODO: Оформить заказ
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    const ingredientIds = [
+      constructorItems.bun._id,
+      ...constructorItems.ingredients.map((item: TConstructorIngredient) => item._id),
+      constructorItems.bun._id,
+    ];
+
+    dispatch(createOrder(ingredientIds));
   };
 
   const closeOrderModal = (): void => {
-    // TODO: Закрыть модальное окно и сбросить заказ
+    dispatch(clearOrderModalData());
+    dispatch(clearConstructor());
   };
 
   const price = useMemo(
