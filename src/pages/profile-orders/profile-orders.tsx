@@ -1,13 +1,8 @@
 import { useEffect } from 'react';
-
 import { Preloader } from '@ui';
 import { ProfileOrdersUI } from '@ui-pages';
-
 import { useDispatch, useSelector } from '../../services/store';
-import {
-  userOrdersSelector,
-  ordersLoadingSelector
-} from '../../services/selectors';
+import { userOrdersSelector, ordersLoadingSelector } from '../../services/selectors';
 import { getOrders } from '../../services/ordersSlice';
 
 export const ProfileOrders = (): React.JSX.Element => {
@@ -21,14 +16,6 @@ export const ProfileOrders = (): React.JSX.Element => {
 
   if (isLoading) {
     return <Preloader />;
-  }
-
-  if (!orders.length) {
-    return (
-      <p className="text text_type_main-medium mt-10">
-        У вас пока нет заказов
-      </p>
-    );
   }
 
   return <ProfileOrdersUI orders={orders} />;

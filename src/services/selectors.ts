@@ -53,3 +53,6 @@ export const orderRequestSelector = (state: RootState): boolean =>
 
 export const orderModalDataSelector = (state: RootState) =>
   state.order.orderModalData;
+
+export const currentOrderSelector = (state: RootState) => state.orders.currentOrder;
+export const orderLoadingSelector = (state: RootState) => state.orders.orderLoading;

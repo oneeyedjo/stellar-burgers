@@ -1,52 +1,50 @@
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Preloader } from '@ui';
 import { OrderInfoUI } from '@ui';
-import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
-import { useSelector } from '../../services/store';
-import { ingredientsSelector } from '../../services/selectors';
-import { getOrderByNumberApi } from '@api';
-import type { TIngredient, TOrder } from '@utils-types';
+import { useDispatch, useSelector } from '../../services/store';
+import { currentOrderSelector, orderLoadingSelector, ingredientsSelector } from '../../services/selectors';
+import { getOrderByNumber } from '../../services/ordersSlice';
+import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
-  const { number } = useParams<{ number: string }>();
+  const { number } = useParams();
+  const dispatch = useDispatch();
+  const order = useSelector(currentOrderSelector);
+  const isLoading = useSelector(orderLoadingSelector);
   const ingredients = useSelector(ingredientsSelector);
-  const [order, setOrder] = useState<TOrder | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!number) return;
-    setIsLoading(true);
-    getOrderByNumberApi(Number(number))
-      .then((data) => setOrder(data.orders[0]))
-      .catch(() => setOrder(null))
-      .finally(() => setIsLoading(false));
-  }, [number]);
+    if (number) {
+      dispatch(getOrderByNumber(Number(number)));
+    }
+  }, [number, dispatch]);
 
   const orderInfo = useMemo(() => {
     if (!order || !ingredients.length) return null;
 
-    const ingredientsInfo = order.ingredients.reduce(
-      (acc: Record<string, TIngredient & { count: number }>, itemId) => {
-        const ingredient = ingredients.find((ing) => ing._id === itemId);
-        if (!ingredient) return acc;
-        if (!acc[itemId]) acc[itemId] = { ...ingredient, count: 0 };
-        acc[itemId].count += 1;
-        return acc;
-      },
-      {}
-    );
+    const orderIngredients = order.ingredients.reduce((acc: { [key: string]: TIngredient & { count: number } }, id) => {
+      const ingredient = ingredients.find((ing) => ing._id === id);
+      if (!ingredient) return acc;
 
-    const total = Object.values(ingredientsInfo).reduce(
-      (sum, item) => sum + item.price * item.count,
+      if (!acc[id]) {
+        acc[id] = { ...ingredient, count: 1 };
+      } else {
+        acc[id].count++;
+      }
+      return acc;
+    }, {});
+
+    const totalPrice = Object.values(orderIngredients).reduce(
+      (acc, ing) => acc + ing.price * ing.count,
       0
     );
 
     return {
       ...order,
-      ingredientsInfo,
+      ingredientsInfo: orderIngredients,
       date: new Date(order.createdAt),
-      total
+      total: totalPrice,
     };
   }, [order, ingredients]);
 
@@ -54,5 +52,5 @@ export const OrderInfo = (): React.JSX.Element => {
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return <OrderInfoUI orderInfo={orderInfo as any} />;
 };

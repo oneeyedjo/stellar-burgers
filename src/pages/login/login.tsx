@@ -1,41 +1,37 @@
-import { LoginUI } from '@ui-pages';
-import { type SyntheticEvent, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-import { useDispatch, useSelector } from '@services/store';
-import { userErrorSelector } from '@services/selectors';
+import { LoginUI } from '@ui-pages';
+import { useDispatch, useSelector } from '../../services/store';
 import { loginUser } from '../../services/userSlice';
+import { userErrorSelector } from '../../services/selectors';
 
 export const Login = (): React.JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const error = useSelector(userErrorSelector);
+  const errorText = useSelector(userErrorSelector);
 
-  const handleSubmit = (e: SyntheticEvent): void => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     dispatch(loginUser({ email, password }))
       .unwrap()
       .then(() => {
-        const from = location.state?.from?.pathname || '/';
+        const from = (location.state as any)?.from?.pathname || '/';
         navigate(from, { replace: true });
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   return (
     <LoginUI
-      errorText={error ?? ''}
       email={email}
       setEmail={setEmail}
       password={password}
       setPassword={setPassword}
       handleSubmit={handleSubmit}
+      errorText={errorText || ''}
     />
   );
 };

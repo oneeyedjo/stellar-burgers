@@ -1,32 +1,38 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-
-import { getFeedsApi, getOrdersApi } from '@api';
+import { getOrdersApi, getFeedsApi, getOrderByNumberApi } from '@api';
 import type { TOrder } from '@utils-types';
 
 export type TOrdersState = {
   feed: TOrder[];
+  userOrders: TOrder[];
   total: number;
   totalToday: number;
-  userOrders: TOrder[];
   isLoading: boolean;
   error: string | null;
+  currentOrder: TOrder | null;
+  orderLoading: boolean;
 };
 
 const initialState: TOrdersState = {
   feed: [],
+  userOrders: [],
   total: 0,
   totalToday: 0,
-  userOrders: [],
   isLoading: false,
-  error: null
+  error: null,
+  currentOrder: null,
+  orderLoading: false,
 };
 
-export const getFeeds = createAsyncThunk('orders/getFeeds', async () =>
-  await getFeedsApi()
-);
+export const getFeeds = createAsyncThunk('orders/getFeeds', getFeedsApi);
+export const getOrders = createAsyncThunk('orders/getOrders', getOrdersApi);
 
-export const getOrders = createAsyncThunk('orders/getOrders', async () =>
-  await getOrdersApi()
+export const getOrderByNumber = createAsyncThunk(
+  'orders/getOrderByNumber',
+  async (number: number) => {
+    const res = await getOrderByNumberApi(number);
+    return res.orders[0];
+  }
 );
 
 const ordersSlice = createSlice({
@@ -35,7 +41,6 @@ const ordersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // getFeeds
       .addCase(getFeeds.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -50,7 +55,6 @@ const ordersSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message ?? 'Ошибка загрузки ленты';
       })
-      // getOrders
       .addCase(getOrders.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -62,8 +66,20 @@ const ordersSlice = createSlice({
       .addCase(getOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message ?? 'Ошибка загрузки истории';
+      })
+      .addCase(getOrderByNumber.pending, (state) => {
+        state.orderLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrderByNumber.fulfilled, (state, action) => {
+        state.orderLoading = false;
+        state.currentOrder = action.payload;
+      })
+      .addCase(getOrderByNumber.rejected, (state, action) => {
+        state.orderLoading = false;
+        state.error = action.error.message ?? 'Ошибка загрузки заказа';
       });
-  }
+  },
 });
 
 export const ordersReducer = ordersSlice.reducer;
