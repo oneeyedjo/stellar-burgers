@@ -1,15 +1,4 @@
-import { combineReducers } from '@reduxjs/toolkit';
-
-import { constructorReducer } from './constructorSlice';
-import { ingredientsReducer } from './ingredientsSlice';
-import { orderReducer } from './orderSlice';
-import { ordersReducer } from './ordersSlice';
-import { userReducer } from './userSlice';
-
-export const rootReducer = combineReducers({
-  ingredients: ingredientsReducer,
-  user: userReducer,
-  orders: ordersReducer,
-  burgerConstructor: constructorReducer,
-  order: orderReducer
+// TODO: Заменить на настоящий корневой редьюсер
+export const rootReducer = (): Record<string, never> => ({
+  // TODO: Собрать здесь редьюсеры слайсов
 });
